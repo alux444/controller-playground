@@ -23,18 +23,12 @@
   height: 7px;
   margin-right: 6px;
   border-radius: 50%;
-  background: #628777;
+  background: var(--color-feedback-success-foreground);
 }
-.phone-header-actions button,
-.settings-head button {
+.phone-header-actions .ui-button,
+.settings-head .ui-button,
+.motion-actions .ui-button {
   min-height: 44px;
-  padding: 0 14px;
-  border: 1px solid #d5d9d2;
-  border-radius: 9px;
-  background: #fff;
-  color: #343a34;
-  font-size: 13px;
-  font-weight: 600;
   white-space: nowrap;
 }
 .settings-dialog {
@@ -62,16 +56,6 @@
   margin: 0;
   font-size: 20px;
   letter-spacing: -0.03em;
-}
-.settings-head button {
-  background: var(--blue);
-  border-color: var(--blue);
-  color: white;
-}
-.settings-head button:disabled {
-  background: #e8ebe6;
-  border-color: #e8ebe6;
-  color: #8b908a;
 }
 .settings-status {
   margin: 8px 0 18px;

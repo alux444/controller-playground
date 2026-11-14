@@ -33,7 +33,7 @@
   height: 35%;
 }
 .stick:focus-visible {
-  outline: 3px solid #5276d4;
+  outline: 3px solid var(--color-border-focus);
   outline-offset: 3px;
 }
 .actions button span {

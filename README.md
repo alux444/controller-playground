@@ -27,3 +27,7 @@ In wheel mode, tap **Enable motion** and allow access. Hold the phone like a whe
 Choose **Twin sticks** to move and aim independently. For **Pointer**, hold the phone like a remote with its top edge pointing at the screen. Enable motion, point at the centre, and tap **Set centre**. The pointer also offers touch sliders. Both modes show each player's crosshair in the shared aiming preview; in Pointer mode, Fire highlights it.
 
 Run `npm test` for protocol checks. This is a proof of concept; real-device motion and latency depend on the browser and network.
+
+## Development
+
+The host and controller are React and TypeScript. The server relays controller input over WebSockets. The source-owned Forme UI kit lives in `src/ui-kit`; edit its tokens and run `npm run build:tokens` to regenerate the theme CSS.

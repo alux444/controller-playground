@@ -1,11 +1,11 @@
 .player {
-  border: 1px solid #e0e3dc;
+  border: 1px solid var(--color-border-default);
   border-radius: 10px;
   padding: 16px;
   display: flex;
   flex-direction: column;
   min-height: 285px;
-  background: #f8f9f5;
+  background: var(--color-background-subdued);
 }
 .player-top,
 .player-bottom {
@@ -17,7 +17,7 @@
   font-weight: 600;
 }
 .player-status {
-  color: #5d7e6b;
+  color: var(--color-feedback-success-foreground);
   font-size: 11px;
   font-weight: 500;
 }
@@ -32,15 +32,15 @@
   position: absolute;
   width: 150px;
   height: 150px;
-  border: 1px solid #dfe3d9;
+  border: 1px solid var(--color-border-default);
   border-radius: 50%;
   background:
-    linear-gradient(90deg, transparent 49.6%, #e0e4dc 50%, transparent 50.4%),
-    linear-gradient(transparent 49.6%, #e0e4dc 50%, transparent 50.4%);
+    linear-gradient(90deg, transparent 49.6%, var(--color-border-default) 50%, transparent 50.4%),
+    linear-gradient(transparent 49.6%, var(--color-border-default) 50%, transparent 50.4%);
 }
 .wheel-visual,
 .phone-wheel {
-  border: 8px solid #425eaa;
+  border: 8px solid var(--color-action-primary);
   border-radius: 50%;
   width: 128px;
   height: 128px;
@@ -53,7 +53,7 @@
   position: absolute;
   width: 5px;
   height: 50%;
-  background: #425eaa;
+  background: var(--color-action-primary);
   transform-origin: center bottom;
   bottom: 50%;
   border-radius: 5px;
@@ -77,8 +77,8 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #425eaa;
-  color: #fff;
+  background: var(--color-action-primary);
+  color: var(--color-neutral-50);
   z-index: 1;
 }
 .marker {
@@ -87,7 +87,7 @@
   width: 24px;
   height: 24px;
   background: var(--blue);
-  border: 5px solid #fff;
+  border: 5px solid var(--color-neutral-50);
   border-radius: 50%;
 }
 .is-gamepad .wheel-visual {
@@ -118,15 +118,15 @@
 .indicator {
   width: 30px;
   height: 30px;
-  border: 1px solid #cfd5c9;
+  border: 1px solid var(--color-border-default);
   border-radius: 50%;
   display: grid;
   place-items: center;
-  color: #9da69a;
+  color: var(--color-neutral-400);
 }
 .indicator.active {
   background: var(--blue);
-  color: #fff;
+  color: var(--color-neutral-50);
   border-color: var(--blue);
 }
 
@@ -155,16 +155,16 @@
 .aim-field {
   position: relative;
   min-height: 220px;
-  border: 1px solid #dfe3d9;
+  border: 1px solid var(--color-border-default);
   border-radius: 10px;
-  background: #f4f5f0;
+  background: var(--color-background-subdued);
   overflow: hidden;
 }
 .aim-field::before,
 .aim-field::after {
   content: "";
   position: absolute;
-  background: #e1e5dd;
+  background: var(--color-border-default);
 }
 .aim-field::before {
   left: 50%;
@@ -179,7 +179,7 @@
   width: 100%;
 }
 .aim-marker {
-  --player-colour: #365cc8;
+  --player-colour: var(--color-action-primary);
   position: absolute;
   left: 50%;
   top: 50%;
