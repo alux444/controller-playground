@@ -69,7 +69,8 @@
   #gamepad-controls {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    padding-left: clamp(8px, 4vw, 36px);
   }
   #twin-stick-controls {
     display: flex;
@@ -117,9 +118,15 @@
     align-self: center;
     flex-direction: row;
     align-items: center;
-    justify-content: center;
-    gap: clamp(8px, 2vw, 24px);
+    justify-content: flex-end;
+    gap: clamp(6px, 1.5vw, 16px);
     margin: 0;
+  }
+  .actions button[data-action="secondary"] {
+    transform: translateY(25%);
+  }
+  .actions button[data-action="primary"] {
+    transform: translateY(-25%);
   }
 }
 @media (orientation: portrait) {
@@ -163,5 +170,11 @@
   }
   .actions button span {
     width: clamp(58px, 22dvh, 80px);
+  }
+  .actions button[data-action="secondary"] {
+    transform: translateY(15%);
+  }
+  .actions button[data-action="primary"] {
+    transform: translateY(-15%);
   }
 }
