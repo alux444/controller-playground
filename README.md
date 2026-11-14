@@ -1,6 +1,6 @@
 # Controller Playground
 
-A shared-screen experiment for using phones as browser game controllers. Open the host on a Mac, scan its QR code on one or two phones, and try the wheel or gamepad.
+A shared-screen experiment for using phones as browser game controllers. Open the host on a Mac, scan its QR code on one or two phones, and try the controls.
 
 ## Run
 
@@ -20,7 +20,7 @@ For HTTPS, provide a reachable HTTPS address with `PUBLIC_URL` when using a secu
 PUBLIC_URL=https://your-trusted-address.example npm start
 ```
 
-Choose **Player 1** or **Player 2**. Each slot can be used by one phone at a time. Turn the phone sideways for the wheel, gamepad, and twin sticks; hold it upright for the pointer. If the screen doesn't rotate, turn off the phone's orientation lock.
+Choose **Player 1** or **Player 2** and a controller in Settings, then tap **Done**. Each slot can be used by one phone at a time. Turn the phone sideways for the wheel, gamepad, and twin sticks; hold it upright for the pointer. If the screen doesn't rotate, turn off the phone's orientation lock. Reopen Settings to change the player, controller, or sensitivity; controls are released while Settings is open.
 
 In wheel mode, tap **Enable motion** and allow access. Hold the phone like a wheel and tap **Recenter** in a comfortable position. Adjust **Steering sensitivity** to change how far you need to turn. Touch steering is available without motion. The gamepad offers a touch joystick and A/B buttons.
 

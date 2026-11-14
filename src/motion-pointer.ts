@@ -9,12 +9,14 @@ interface MotionPermission {
 interface PointerDependencies {
   state: ControllerState;
   portrait: MediaQueryList;
+  suspended: () => boolean;
   transmit: () => void;
 }
 
 export function bindMotionPointer({
   state,
   portrait,
+  suspended,
   transmit,
 }: PointerDependencies): () => void {
   const indicator = element<HTMLElement>("#pointer-dot");
@@ -32,7 +34,8 @@ export function bindMotionPointer({
   let enabled = false;
 
   function render(): void {
-    indicator.style.transform = `translate(${state.aimX * 62}px, ${state.aimY * 36}px)`;
+    indicator.style.left = `${50 + state.aimX * 42}%`;
+    indicator.style.top = `${50 + state.aimY * 40}%`;
     horizontal.value = String(Math.round(state.aimX * 100));
     vertical.value = String(Math.round(state.aimY * 100));
     transmit();
@@ -73,7 +76,7 @@ export function bindMotionPointer({
   sensitivity.addEventListener("input", () => {
     element<HTMLOutputElement>("#pointer-sensitivity-value").textContent =
       `${sensitivity.value}%`;
-    if (enabled) updateAim();
+    if (enabled && !suspended()) updateAim();
   });
   centerButton.addEventListener("click", () => {
     if (!enabled || !current) {
@@ -120,6 +123,7 @@ export function bindMotionPointer({
       !enabled ||
       state.mode !== "motion-pointer" ||
       document.hidden ||
+      suspended() ||
       landscape.matches
     )
       return;

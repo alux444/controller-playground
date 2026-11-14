@@ -25,12 +25,12 @@ export function showHost(app: HTMLElement): void {
         <div class="corner-note"><strong id="count">0<span> / 2</span></strong><p>phones connected</p></div>
       </section>
       <section class="console" aria-label="Controller monitor">
-        <div class="console-header"><div><h2>Live input</h2><p class="panel-hint">Your controller will appear here.</p></div><span class="status" id="host-status"><i></i> Starting session</span></div>
+        <div class="console-header"><div><h2>Live input</h2><p class="panel-hint">Inputs from connected phones.</p></div><span class="status" id="host-status"><i></i> Starting session</span></div>
         <div class="console-content">
           <div class="monitor"><section class="aim-panel" id="aim-panel" aria-label="Shared aiming preview" hidden><div class="aim-heading"><h3>Aim together</h3><p>Each player has their own crosshair</p></div><div class="aim-field" id="aim-field"></div></section><div class="player-grid" id="players"><div class="empty"><div class="empty-icon">⌁</div><h3>No phones connected</h3><p>Scan the code to join this session.</p></div></div></div>
           <aside class="pairing"><div class="pairing-top"><span>Connect a phone</span></div><div class="qr-frame"><canvas id="qr" aria-label="QR code for joining this session"></canvas></div><p>Scan with your phone’s camera.</p><div class="pairing-link"><span>Or open this link</span><a id="join-link" href="#">Preparing link…</a></div></aside>
         </div>
-        <div class="console-footer"><span>Controller playground</span><span>Up to two phones</span></div>
+        <div class="console-footer"><span>Keep this page open</span><span>Up to two phones</span></div>
       </section>
     </main>`;
   const socket = new WebSocket(socketUrl("host"));
@@ -126,7 +126,7 @@ export function showHost(app: HTMLElement): void {
         join.toString(),
         { width: 192, margin: 1, color: { dark: "#1a201b", light: "#f4f3e9" } },
       );
-      status.innerHTML = "<i></i> Ready to connect";
+      status.innerHTML = "<i></i> Session active";
       if (join.protocol !== "https:")
         element<HTMLElement>(".pairing-link").insertAdjacentHTML(
           "beforeend",
