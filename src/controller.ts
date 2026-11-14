@@ -2,6 +2,7 @@ import type { ControllerState } from "../server/protocol.ts";
 import { element, socketUrl } from "./dom.ts";
 import { steeringAngle, steeringInput } from "./steering.ts";
 import { bindTwinSticks } from "./twin-stick.ts";
+import { bindMotionPointer } from "./motion-pointer.ts";
 
 interface MotionEventConstructor {
   requestPermission?: () => Promise<"granted" | "denied">;
@@ -9,11 +10,13 @@ interface MotionEventConstructor {
 
 export function showController(app: HTMLElement, room: string): void {
   app.innerHTML = `
-    <main class="phone-shell">
+    <main class="phone-shell" data-mode="wheel">
       <header class="phone-header"><span class="phone-logo">Controller playground</span><span class="phone-status" id="phone-status">Connecting…</span></header>
       <section class="phone-heading"><h1>Controller</h1><p>Choose a layout to try on the big screen.</p></section>
       <div class="configuration"><div class="player-picker"><span>Choose player</span><div role="group" aria-label="Player"><button type="button" data-slot="1" aria-pressed="false">Player 1</button><button type="button" data-slot="2" aria-pressed="false">Player 2</button></div></div>
-      <nav class="mode-switch" id="mode-switch" aria-label="Controller type" inert><button type="button" data-mode="wheel" aria-pressed="true">Wheel</button><button type="button" data-mode="gamepad" aria-pressed="false">Gamepad</button><button type="button" data-mode="twin-stick" aria-pressed="false">Twin sticks</button></nav></div>
+      <nav class="mode-switch" id="mode-switch" aria-label="Controller type" inert><button type="button" data-mode="wheel" aria-pressed="true">Wheel</button><button type="button" data-mode="gamepad" aria-pressed="false">Gamepad</button><button type="button" data-mode="twin-stick" aria-pressed="false">Twin sticks</button><button type="button" data-mode="motion-pointer" aria-pressed="false">Pointer</button></nav></div>
+      <div class="rotate-prompt rotate-landscape" role="status"><div class="rotate-icon" aria-hidden="true">↻</div><h2>Turn your phone sideways</h2><p>Use this controller in landscape, or choose Pointer to aim upright.</p></div>
+      <div class="rotate-prompt rotate-portrait" role="status"><div class="rotate-icon" aria-hidden="true">↻</div><h2>Turn your screen to portrait</h2><p>Hold the phone like a remote, with its top edge pointing at the screen.</p></div>
       <section class="controller" id="controller" inert>
         <div class="controller-head"><span id="controller-label">Wheel</span><span>Live input <span class="live-dot">●</span></span></div>
         <div id="wheel-controls">
@@ -25,10 +28,10 @@ export function showController(app: HTMLElement, room: string): void {
         </div>
         <div id="gamepad-controls" hidden><div class="stick-stage"><div class="stick" id="stick" role="application" aria-label="Touch joystick"><span id="stick-knob"></span></div></div><p class="instruction">Drag to move. Release to return to centre.</p><div class="dpad" aria-label="Move with buttons"><button data-direction="up" aria-label="Up">↑</button><button data-direction="left" aria-label="Left">←</button><button data-direction="down" aria-label="Down">↓</button><button data-direction="right" aria-label="Right">→</button></div></div>
         <div id="twin-stick-controls" hidden><div class="twin-pad"><div class="stick" id="move-stick" role="application" tabindex="0" aria-label="Move stick. Use arrow keys or touch."><span class="stick-knob"></span></div><span>Move</span></div><div class="twin-pad"><div class="stick" id="aim-stick" role="application" tabindex="0" aria-label="Aim stick. Use arrow keys or touch."><span class="stick-knob"></span></div><span>Aim</span></div></div>
+        <div id="pointer-controls" hidden><div class="pointer-preview" aria-hidden="true"><span id="pointer-dot"></span></div><div class="pointer-settings"><p class="instruction" id="pointer-instruction">Hold your phone like a remote, with its top edge pointing at the screen. Enable motion to begin.</p><div class="motion-actions"><button class="pill bright" id="pointer-enable" type="button">Enable motion</button><button class="pill subtle" id="pointer-recenter" type="button">Set centre</button></div><label class="slider-label" for="pointer-sensitivity">Sensitivity <output id="pointer-sensitivity-value" for="pointer-sensitivity">100%</output></label><input id="pointer-sensitivity" type="range" min="50" max="200" step="10" value="100"><details><summary>Touch aiming</summary><label class="slider-label" for="pointer-x">Left / right</label><input id="pointer-x" type="range" min="-100" max="100" value="0"><label class="slider-label" for="pointer-y">Up / down</label><input id="pointer-y" type="range" min="-100" max="100" value="0"></details></div></div>
         <div class="actions"><button type="button" data-action="secondary"><span>B</span><small id="secondary-label">Brake</small></button><button type="button" data-action="primary"><span>A</span><small id="primary-label">Accelerate</small></button></div>
       </section>
       <footer class="phone-footer">Keep this page open while playing.</footer>
-      <div class="rotate-prompt" role="status"><div class="rotate-icon" aria-hidden="true">↻</div><h2>Turn your phone sideways</h2><p>The controller works in landscape. If the screen doesn't rotate, turn off Portrait Orientation Lock.</p></div>
     </main>`;
   let socket = new WebSocket(socketUrl("player", room));
   const state: ControllerState = {
@@ -51,6 +54,7 @@ export function showController(app: HTMLElement, room: string): void {
   let takenSlots: number[] = [];
   let lobbyConnected = false;
   let resetTwinSticks = (): void => {};
+  let resetMotionPointer = (): void => {};
 
   function updatePlayerChoices(): void {
     document
@@ -78,13 +82,14 @@ export function showController(app: HTMLElement, room: string): void {
   }
 
   function neutral(): void {
-    resetTwinSticks();
     state.x = 0;
     state.y = 0;
     state.aimX = 0;
     state.aimY = 0;
     state.primary = false;
     state.secondary = false;
+    resetTwinSticks();
+    resetMotionPointer();
     document
       .querySelectorAll(".pressed")
       .forEach((button) => button.classList.remove("pressed"));
@@ -177,6 +182,7 @@ export function showController(app: HTMLElement, room: string): void {
   bindMotion(context);
   bindGamepad(context);
   resetTwinSticks = bindTwinSticks(state, transmit);
+  resetMotionPointer = bindMotionPointer({ state, portrait, transmit });
 }
 
 interface ControllerContext {
@@ -194,9 +200,15 @@ function bindModes({ state, neutral, transmit }: ControllerContext): void {
       button.addEventListener("click", () => {
         neutral();
         const mode = button.dataset.mode;
-        if (mode !== "wheel" && mode !== "gamepad" && mode !== "twin-stick")
+        if (
+          mode !== "wheel" &&
+          mode !== "gamepad" &&
+          mode !== "twin-stick" &&
+          mode !== "motion-pointer"
+        )
           return;
         state.mode = mode;
+        element<HTMLElement>(".phone-shell").dataset.mode = mode;
         document
           .querySelectorAll<HTMLButtonElement>("[data-mode]")
           .forEach((item) =>
@@ -207,16 +219,20 @@ function bindModes({ state, neutral, transmit }: ControllerContext): void {
           state.mode !== "gamepad";
         element<HTMLElement>("#twin-stick-controls").hidden =
           state.mode !== "twin-stick";
+        element<HTMLElement>("#pointer-controls").hidden =
+          state.mode !== "motion-pointer";
         element<HTMLElement>("#controller-label").textContent =
           state.mode === "wheel"
             ? "Wheel"
             : state.mode === "gamepad"
               ? "Gamepad"
-              : "Twin sticks";
+              : state.mode === "twin-stick"
+                ? "Twin sticks"
+                : "Motion pointer";
         element<HTMLElement>("#primary-label").textContent =
           state.mode === "wheel"
             ? "Accelerate"
-            : state.mode === "twin-stick"
+            : state.mode === "twin-stick" || state.mode === "motion-pointer"
               ? "Fire"
               : "Action A";
         element<HTMLElement>("#secondary-label").textContent =
