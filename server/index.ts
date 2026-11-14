@@ -80,6 +80,7 @@ const server =
 const sockets = new WebSocketServer({ server, maxPayload: 1024 });
 
 sockets.on("connection", (socket, request) => {
+  socket.on("error", () => socket.terminate());
   const url = new URL(request.url ?? "/", "http://localhost");
   const role = url.searchParams.get("role");
   if (role === "host") {
@@ -113,7 +114,7 @@ sockets.on("connection", (socket, request) => {
       );
       if (state) send(room.host, { type: "input", id, state });
     } catch {
-      /* Ignore malformed input. */
+      return;
     }
   });
   socket.on("close", () => {
