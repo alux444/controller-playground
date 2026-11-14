@@ -195,7 +195,7 @@ interface ControllerContext {
 
 function bindModes({ state, neutral, transmit }: ControllerContext): void {
   document
-    .querySelectorAll<HTMLButtonElement>("[data-mode]")
+    .querySelectorAll<HTMLButtonElement>("button[data-mode]")
     .forEach((button) =>
       button.addEventListener("click", () => {
         neutral();
@@ -210,7 +210,7 @@ function bindModes({ state, neutral, transmit }: ControllerContext): void {
         state.mode = mode;
         element<HTMLElement>(".phone-shell").dataset.mode = mode;
         document
-          .querySelectorAll<HTMLButtonElement>("[data-mode]")
+          .querySelectorAll<HTMLButtonElement>("button[data-mode]")
           .forEach((item) =>
             item.setAttribute("aria-pressed", String(item === button)),
           );
