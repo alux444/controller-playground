@@ -75,6 +75,7 @@ export function showHost(app: HTMLElement): void {
     if (!player) return;
     player.lastInput = Date.now();
     player.element.classList.toggle("is-gamepad", state.mode !== "wheel");
+    player.element.classList.toggle("is-twin-stick", state.mode === "twin-stick");
     player.wheel.style.transform = `rotate(${state.x * 90}deg)`;
     const markerX = state.mode === "motion-pointer" ? state.aimX : state.x;
     const markerY = state.mode === "motion-pointer" ? state.aimY : state.y;

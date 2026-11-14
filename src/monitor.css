@@ -112,6 +112,9 @@
   display: flex;
   gap: 6px;
 }
+.is-twin-stick .button-indicators {
+  display: none;
+}
 .indicator {
   width: 30px;
   height: 30px;

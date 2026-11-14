@@ -302,7 +302,7 @@ function bindModes({ state, neutral, transmit }: ControllerContext): void {
         element<HTMLElement>("#primary-label").textContent =
           state.mode === "wheel"
             ? "Accelerate"
-            : state.mode === "twin-stick" || state.mode === "motion-pointer"
+            : state.mode === "motion-pointer"
               ? "Fire"
               : "Action A";
         element<HTMLElement>("#secondary-label").textContent =
