@@ -1,7 +1,7 @@
 import type { ControllerState } from "../server/protocol.ts";
 import { element, socketUrl } from "./dom.ts";
 import { steeringAngle, steeringInput } from "./steering.ts";
-import { bindTwinSticks } from "./twin-stick.ts";
+import { bindGamepadStick, bindTwinSticks } from "./twin-stick.ts";
 import { bindMotionPointer } from "./motion-pointer.ts";
 
 interface MotionEventConstructor {
@@ -26,7 +26,7 @@ export function showController(app: HTMLElement, room: string): void {
           <label class="slider-label" for="sensitivity">Steering sensitivity <output id="sensitivity-value" for="sensitivity">100%</output></label><input id="sensitivity" type="range" min="70" max="200" step="10" value="100" aria-label="Steering sensitivity">
           <label class="slider-label" for="steering">Touch steering <span>← &nbsp; →</span></label><input id="steering" type="range" min="-100" max="100" value="0" aria-label="Touch steering">
         </div>
-        <div id="gamepad-controls" hidden><div class="stick-stage"><div class="stick" id="stick" role="application" aria-label="Touch joystick"><span id="stick-knob"></span></div></div><p class="instruction">Drag to move. Release to return to centre.</p><div class="dpad" aria-label="Move with buttons"><button data-direction="up" aria-label="Up">↑</button><button data-direction="left" aria-label="Left">←</button><button data-direction="down" aria-label="Down">↓</button><button data-direction="right" aria-label="Right">→</button></div></div>
+        <div id="gamepad-controls" hidden><div class="stick-stage"><div class="stick" id="stick" role="application" tabindex="0" aria-label="Joystick. Use arrow keys or touch."><span id="stick-knob" class="stick-knob"></span></div></div></div>
         <div id="twin-stick-controls" hidden><div class="twin-pad"><div class="stick" id="move-stick" role="application" tabindex="0" aria-label="Move stick. Use arrow keys or touch."><span class="stick-knob"></span></div><span>Move</span></div><div class="twin-pad"><div class="stick" id="aim-stick" role="application" tabindex="0" aria-label="Aim stick. Use arrow keys or touch."><span class="stick-knob"></span></div><span>Aim</span></div></div>
         <div id="pointer-controls" hidden><div class="pointer-preview" aria-hidden="true"><span id="pointer-dot"></span></div><div class="pointer-settings"><p class="instruction" id="pointer-instruction">Hold your phone like a remote, with its top edge pointing at the screen. Enable motion to begin.</p><div class="motion-actions"><button class="pill bright" id="pointer-enable" type="button">Enable motion</button><button class="pill subtle" id="pointer-recenter" type="button">Set centre</button></div><label class="slider-label" for="pointer-sensitivity">Sensitivity <output id="pointer-sensitivity-value" for="pointer-sensitivity">100%</output></label><input id="pointer-sensitivity" type="range" min="50" max="200" step="10" value="100"><details><summary>Touch aiming</summary><label class="slider-label" for="pointer-x">Left / right</label><input id="pointer-x" type="range" min="-100" max="100" value="0"><label class="slider-label" for="pointer-y">Up / down</label><input id="pointer-y" type="range" min="-100" max="100" value="0"></details></div></div>
         <div class="actions"><button type="button" data-action="secondary"><span>B</span><small id="secondary-label">Brake</small></button><button type="button" data-action="primary"><span>A</span><small id="primary-label">Accelerate</small></button></div>
@@ -54,6 +54,7 @@ export function showController(app: HTMLElement, room: string): void {
   let takenSlots: number[] = [];
   let lobbyConnected = false;
   let resetTwinSticks = (): void => {};
+  let resetGamepadStick = (): void => {};
   let resetMotionPointer = (): void => {};
 
   function updatePlayerChoices(): void {
@@ -88,6 +89,7 @@ export function showController(app: HTMLElement, room: string): void {
     state.aimY = 0;
     state.primary = false;
     state.secondary = false;
+    resetGamepadStick();
     resetTwinSticks();
     resetMotionPointer();
     document
@@ -180,7 +182,7 @@ export function showController(app: HTMLElement, room: string): void {
   bindModes(context);
   bindActionButtons(context);
   bindMotion(context);
-  bindGamepad(context);
+  resetGamepadStick = bindGamepadStick(state, transmit);
   resetTwinSticks = bindTwinSticks(state, transmit);
   resetMotionPointer = bindMotionPointer({ state, portrait, transmit });
 }
@@ -388,85 +390,4 @@ function bindMotion({
     render();
     transmit();
   });
-}
-
-function bindGamepad({ state, transmit }: ControllerContext): void {
-  const stick = element<HTMLElement>("#stick");
-  const knob = element<HTMLElement>("#stick-knob");
-  function moveStick(event: PointerEvent): void {
-    const bounds = stick.getBoundingClientRect();
-    const dx =
-      (event.clientX - bounds.left - bounds.width / 2) / (bounds.width / 2);
-    const dy =
-      (event.clientY - bounds.top - bounds.height / 2) / (bounds.height / 2);
-    const length = Math.max(1, Math.hypot(dx, dy));
-    state.x = dx / length;
-    state.y = dy / length;
-    knob.style.transform = `translate(${state.x * 48}px, ${state.y * 48}px)`;
-    transmit();
-  }
-  stick.addEventListener("pointerdown", (event) => {
-    event.preventDefault();
-    stick.setPointerCapture(event.pointerId);
-    moveStick(event);
-  });
-  stick.addEventListener("pointermove", (event) => {
-    if (stick.hasPointerCapture(event.pointerId)) moveStick(event);
-  });
-  function releaseStick(): void {
-    state.x = 0;
-    state.y = 0;
-    knob.style.transform = "translate(0, 0)";
-    transmit();
-  }
-  stick.addEventListener("pointerup", releaseStick);
-  stick.addEventListener("pointercancel", releaseStick);
-  stick.addEventListener("lostpointercapture", releaseStick);
-  document
-    .querySelectorAll<HTMLButtonElement>("[data-direction]")
-    .forEach((button) => {
-      button.addEventListener("pointerdown", (event) => {
-        event.preventDefault();
-        button.setPointerCapture(event.pointerId);
-        state.x =
-          button.dataset.direction === "left"
-            ? -1
-            : button.dataset.direction === "right"
-              ? 1
-              : 0;
-        state.y =
-          button.dataset.direction === "up"
-            ? -1
-            : button.dataset.direction === "down"
-              ? 1
-              : 0;
-        button.classList.add("pressed");
-        transmit();
-      });
-      button.addEventListener("pointerup", () => {
-        button.classList.remove("pressed");
-        releaseStick();
-      });
-      button.addEventListener("pointercancel", () => {
-        button.classList.remove("pressed");
-        releaseStick();
-      });
-      button.addEventListener("click", (event) => {
-        if (event.detail !== 0) return;
-        state.x =
-          button.dataset.direction === "left"
-            ? -1
-            : button.dataset.direction === "right"
-              ? 1
-              : 0;
-        state.y =
-          button.dataset.direction === "up"
-            ? -1
-            : button.dataset.direction === "down"
-              ? 1
-              : 0;
-        transmit();
-        setTimeout(releaseStick, 180);
-      });
-    });
 }

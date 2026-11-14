@@ -23,15 +23,16 @@ function bindStick(
   state: ControllerState,
   side: StickSide,
   transmit: () => void,
+  padId: string,
+  mode: "gamepad" | "twin-stick",
 ): () => void {
-  const pad = element<HTMLElement>(`#${side}-stick`);
+  const pad = element<HTMLElement>(`#${padId}`);
   const knob = element<HTMLElement>(".stick-knob", pad);
   let activePointer: number | undefined;
   const pressed = new Set<string>();
 
   function update(event: PointerEvent): void {
-    if (state.mode !== "twin-stick" || event.pointerId !== activePointer)
-      return;
+    if (state.mode !== mode || event.pointerId !== activePointer) return;
     const bounds = pad.getBoundingClientRect();
     const x =
       (event.clientX - bounds.left - bounds.width / 2) / (bounds.width / 2);
@@ -63,7 +64,7 @@ function bindStick(
 
   function keyboard(event: KeyboardEvent, down: boolean): void {
     if (
-      state.mode !== "twin-stick" ||
+      state.mode !== mode ||
       !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)
     )
       return;
@@ -79,7 +80,7 @@ function bindStick(
   }
 
   pad.addEventListener("pointerdown", (event) => {
-    if (state.mode !== "twin-stick" || activePointer !== undefined) return;
+    if (state.mode !== mode || activePointer !== undefined) return;
     event.preventDefault();
     activePointer = event.pointerId;
     pad.setPointerCapture(event.pointerId);
@@ -99,10 +100,23 @@ export function bindTwinSticks(
   state: ControllerState,
   transmit: () => void,
 ): () => void {
-  const resetMove = bindStick(state, "move", transmit);
-  const resetAim = bindStick(state, "aim", transmit);
+  const resetMove = bindStick(
+    state,
+    "move",
+    transmit,
+    "move-stick",
+    "twin-stick",
+  );
+  const resetAim = bindStick(state, "aim", transmit, "aim-stick", "twin-stick");
   return () => {
     resetMove();
     resetAim();
   };
+}
+
+export function bindGamepadStick(
+  state: ControllerState,
+  transmit: () => void,
+): () => void {
+  return bindStick(state, "move", transmit, "stick", "gamepad");
 }
