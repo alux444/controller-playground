@@ -1,0 +1,130 @@
+.player {
+  border: 1px solid #e0e3dc;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: 285px;
+  background: #f8f9f5;
+}
+.player-top,
+.player-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.player-status {
+  color: #5d7e6b;
+  font-size: 11px;
+  font-weight: 500;
+}
+.display {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 1;
+  min-height: 180px;
+}
+.crosshair {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border: 1px solid #dfe3d9;
+  border-radius: 50%;
+  background:
+    linear-gradient(90deg, transparent 49.6%, #e0e4dc 50%, transparent 50.4%),
+    linear-gradient(transparent 49.6%, #e0e4dc 50%, transparent 50.4%);
+}
+.wheel-visual,
+.phone-wheel {
+  border: 8px solid #425eaa;
+  border-radius: 50%;
+  width: 128px;
+  height: 128px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  transition: transform 60ms linear;
+}
+.wheel-visual span,
+.phone-wheel span {
+  position: absolute;
+  width: 5px;
+  height: 50%;
+  background: #425eaa;
+  transform-origin: center bottom;
+  bottom: 50%;
+  border-radius: 5px;
+}
+.wheel-visual span:nth-child(1),
+.phone-wheel span:nth-child(1) {
+  transform: rotate(0deg);
+}
+.wheel-visual span:nth-child(2),
+.phone-wheel span:nth-child(2) {
+  transform: rotate(120deg);
+}
+.wheel-visual span:nth-child(3),
+.phone-wheel span:nth-child(3) {
+  transform: rotate(240deg);
+}
+.wheel-visual b,
+.phone-wheel b {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #425eaa;
+  color: #fff;
+  z-index: 1;
+}
+.marker {
+  display: none;
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  background: var(--blue);
+  border: 5px solid #fff;
+  border-radius: 50%;
+  transition: transform 60ms linear;
+}
+.is-gamepad .wheel-visual {
+  display: none;
+}
+.is-gamepad .marker {
+  display: block;
+}
+.label {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 400;
+  margin-bottom: 5px;
+}
+.player-bottom strong {
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.button-indicators {
+  display: flex;
+  gap: 6px;
+}
+.indicator {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #cfd5c9;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #9da69a;
+}
+.indicator.active {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue);
+}
