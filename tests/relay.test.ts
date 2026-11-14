@@ -10,7 +10,13 @@ interface Message {
   id?: string;
   slot?: number;
   taken?: number[];
-  state?: { x: number; primary: boolean };
+  state?: {
+    x: number;
+    y: number;
+    aimX: number;
+    aimY: number;
+    primary: boolean;
+  };
 }
 
 interface Peer {
@@ -87,6 +93,22 @@ test(
     assert.equal(input.id, firstJoin.id);
     assert.equal(input.state?.x, 0.5);
     assert.equal(input.state?.primary, true);
+    second.socket.send(
+      JSON.stringify({
+        mode: "twin-stick",
+        x: -0.4,
+        y: 0.2,
+        aimX: 0.7,
+        aimY: -0.3,
+        primary: false,
+        secondary: false,
+      }),
+    );
+    const twinInput = await host.nextType("input");
+    assert.equal(twinInput.id, secondJoin.id);
+    assert.equal(twinInput.state?.x, -0.4);
+    assert.equal(twinInput.state?.aimX, 0.7);
+    assert.equal(twinInput.state?.aimY, -0.3);
     const third = peer(playerUrl);
     assert.equal((await once(third.socket, "close"))[0], 1008);
     first.socket.close();
