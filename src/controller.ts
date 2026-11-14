@@ -33,6 +33,8 @@ export function showController(app: HTMLElement, room: string): void {
     mode: "wheel",
     x: 0,
     y: 0,
+    aimX: 0,
+    aimY: 0,
     primary: false,
     secondary: false,
   };
@@ -75,6 +77,8 @@ export function showController(app: HTMLElement, room: string): void {
   function neutral(): void {
     state.x = 0;
     state.y = 0;
+    state.aimX = 0;
+    state.aimY = 0;
     state.primary = false;
     state.secondary = false;
     document
