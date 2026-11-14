@@ -1,6 +1,6 @@
 import type { ControllerState } from "../server/protocol.ts";
 import { element, socketUrl } from "./dom.ts";
-import { steeringInput } from "./steering.ts";
+import { steeringAngle, steeringInput } from "./steering.ts";
 
 interface MotionEventConstructor {
   requestPermission?: () => Promise<"granted" | "denied">;
@@ -243,6 +243,7 @@ function bindMotion({
   let currentAngle: number | undefined;
   let centerAngle: number | undefined;
   let motionEnabled = false;
+  let awaitingUpright = false;
 
   portrait.addEventListener("change", () => {
     currentAngle = undefined;
@@ -320,11 +321,21 @@ function bindMotion({
       event.gamma === null
     )
       return;
-    const beta = (event.beta * Math.PI) / 180;
-    const gamma = (event.gamma * Math.PI) / 180;
-    currentAngle =
-      (Math.atan2(Math.sin(gamma), Math.sin(beta) * Math.cos(gamma)) * 180) /
-      Math.PI;
+    currentAngle = steeringAngle(event.beta, event.gamma);
+    if (currentAngle === undefined) {
+      awaitingUpright = true;
+      state.x = 0;
+      element<HTMLElement>("#motion-instruction").textContent =
+        "Hold your phone more upright to steer.";
+      render();
+      transmit();
+      return;
+    }
+    if (awaitingUpright) {
+      awaitingUpright = false;
+      element<HTMLElement>("#motion-instruction").textContent =
+        "Hold your phone like a wheel, then turn it to steer.";
+    }
     if (centerAngle === undefined) {
       centerAngle = currentAngle;
       element<HTMLElement>("#motion-instruction").textContent =

@@ -47,7 +47,6 @@
   position: relative;
   display: grid;
   place-items: center;
-  transition: transform 60ms linear;
 }
 .wheel-visual span,
 .phone-wheel span {
@@ -90,7 +89,6 @@
   background: var(--blue);
   border: 5px solid #fff;
   border-radius: 50%;
-  transition: transform 60ms linear;
 }
 .is-gamepad .wheel-visual {
   display: none;
