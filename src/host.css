@@ -40,16 +40,14 @@
   padding: 54px 0 30px;
   gap: 20px;
 }
-.host-intro h1,
-.phone-heading h1 {
+.host-intro h1 {
   font-size: 34px;
   line-height: 1.1;
   letter-spacing: -0.045em;
   font-weight: 650;
   margin: 0;
 }
-.intro-copy,
-.phone-heading p {
+.intro-copy {
   margin: 10px 0 0;
   font-size: 15px;
   color: var(--muted);

@@ -1,0 +1,167 @@
+.phone-shell {
+  width: 100%;
+  max-width: none;
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: auto;
+  padding: 0 max(16px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  display: flex;
+  flex-direction: column;
+}
+.controller {
+  flex: 1;
+  min-height: 0;
+  margin-top: 10px;
+}
+.rotate-prompt {
+  margin-top: 10px;
+}
+#gamepad-controls,
+#twin-stick-controls,
+#pointer-controls,
+#wheel-controls {
+  min-width: 0;
+}
+.stick {
+  width: clamp(120px, 38dvh, 190px);
+  height: auto;
+  aspect-ratio: 1;
+}
+.stick span {
+  width: 35%;
+  height: 35%;
+}
+.stick:focus-visible {
+  outline: 3px solid #5276d4;
+  outline-offset: 3px;
+}
+.actions button span {
+  width: clamp(68px, 18dvh, 96px);
+  height: auto;
+  aspect-ratio: 1;
+}
+.actions button {
+  min-width: 68px;
+  min-height: 68px;
+}
+@media (orientation: landscape) {
+  .phone-shell {
+    min-height: 100dvh;
+  }
+  .controller {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(160px, 30%);
+    grid-template-rows: auto minmax(180px, 1fr);
+    grid-template-areas: "heading heading" "input actions";
+    gap: 8px 12px;
+  }
+  .controller-head {
+    grid-area: heading;
+  }
+  #wheel-controls,
+  #gamepad-controls,
+  #twin-stick-controls,
+  #pointer-controls {
+    grid-area: input;
+    align-self: stretch;
+  }
+  #gamepad-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #twin-stick-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+  }
+  .stick-stage {
+    height: auto;
+  }
+  .twin-pad .stick {
+    width: clamp(104px, 32dvh, 170px);
+  }
+  #wheel-controls {
+    display: grid;
+    grid-template-columns: minmax(100px, 35%) minmax(0, 1fr);
+    align-content: center;
+    gap: 6px 14px;
+  }
+  .wheel-stage {
+    grid-column: 1;
+    grid-row: 1 / span 4;
+    height: auto;
+  }
+  .phone-wheel {
+    width: clamp(90px, 28dvh, 150px);
+    height: auto;
+    aspect-ratio: 1;
+  }
+  #wheel-controls > :not(.wheel-stage) {
+    grid-column: 2;
+  }
+  #wheel-controls .instruction {
+    margin: 0;
+    text-align: left;
+  }
+  #wheel-controls .motion-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+  #wheel-controls .slider-label {
+    margin-top: 2px;
+  }
+  .actions {
+    grid-area: actions;
+    align-self: center;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(8px, 2vw, 24px);
+    margin: 0;
+  }
+}
+@media (orientation: portrait) {
+  .controller {
+    display: flex;
+    flex-direction: column;
+  }
+  #pointer-controls {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .pointer-preview {
+    width: min(230px, 65%);
+    height: 130px;
+  }
+  .actions {
+    justify-content: center;
+    margin: auto 0 12px;
+  }
+}
+#pointer-dot {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+@media (max-height: 330px) and (orientation: landscape) {
+  .phone-header {
+    min-height: 44px;
+  }
+  .controller {
+    padding: 10px;
+    grid-template-rows: auto minmax(150px, 1fr);
+  }
+  .controller-head {
+    font-size: 11px;
+  }
+  .stick {
+    width: clamp(100px, 40dvh, 150px);
+  }
+  .actions button span {
+    width: clamp(58px, 22dvh, 80px);
+  }
+}

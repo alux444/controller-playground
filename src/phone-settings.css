@@ -1,0 +1,120 @@
+.phone-header {
+  min-height: 52px;
+  padding: 0 4px;
+}
+.phone-identity,
+.phone-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.phone-identity {
+  min-width: 0;
+}
+.phone-status {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.phone-status.connected::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: #628777;
+}
+.phone-header-actions button,
+.settings-head button {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #d5d9d2;
+  border-radius: 9px;
+  background: #fff;
+  color: #343a34;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.settings-dialog {
+  width: min(480px, calc(100% - 24px));
+  max-height: calc(100dvh - 24px);
+  margin: auto;
+  padding: 22px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  color: inherit;
+  box-shadow: 0 18px 60px #1f272429;
+}
+.settings-dialog::backdrop {
+  background: #1e27206e;
+}
+.settings-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.settings-head h1 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: -0.03em;
+}
+.settings-head button {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: white;
+}
+.settings-head button:disabled {
+  background: #e8ebe6;
+  border-color: #e8ebe6;
+  color: #8b908a;
+}
+.settings-status {
+  margin: 8px 0 18px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.settings-dialog .configuration {
+  display: block;
+  margin: 0;
+}
+.settings-dialog .player-picker {
+  margin: 0 0 14px;
+}
+.settings-dialog .player-picker > span {
+  display: block;
+}
+.settings-dialog .mode-switch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+.settings-dialog .control-settings {
+  border-top: 1px solid var(--line);
+  margin-top: 18px;
+  padding-top: 4px;
+}
+.settings-dialog .slider-label {
+  margin-top: 10px;
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .settings-dialog {
+    padding: 16px 20px;
+  }
+  .settings-status {
+    margin: 4px 0 12px;
+  }
+  .settings-dialog .player-picker {
+    margin-bottom: 8px;
+  }
+  .settings-dialog .mode-switch {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .settings-dialog .control-settings {
+    margin-top: 10px;
+  }
+}

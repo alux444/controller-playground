@@ -13,15 +13,6 @@
 .phone-status.connected {
   color: #51745e;
 }
-.phone-heading {
-  padding: 24px 0 16px;
-}
-.phone-heading h1 {
-  font-size: 28px;
-}
-.phone-heading p {
-  font-size: 14px;
-}
 .mode-switch {
   display: flex;
   background: #e6e8e1;
@@ -158,8 +149,7 @@ input[type="range"]:focus-visible {
   color: #fff;
   border-color: #365cc8;
 }
-.actions .pressed span,
-.dpad .pressed {
+.actions .pressed span {
   transform: scale(0.93);
   filter: brightness(0.88);
 }
@@ -185,34 +175,9 @@ input[type="range"]:focus-visible {
   box-shadow: 0 3px 8px #1e2e4226;
   pointer-events: none;
 }
-.dpad {
-  display: flex;
-  justify-content: center;
-  gap: 7px;
-}
-.dpad button {
-  width: 44px;
-  height: 44px;
-  border: 1px solid #cfd5ce;
-  border-radius: 8px;
-  background: #f2f4ef;
-  color: #343c35;
-  font-size: 18px;
-  touch-action: none;
-}
-.phone-footer {
-  text-align: center;
-  color: #858b82;
-  font-size: 12px;
-  padding: 26px 0 8px;
-}
 @media (max-height: 550px) and (orientation: landscape) {
   .phone-header {
     min-height: 46px;
-  }
-  .phone-heading,
-  .phone-footer {
-    display: none;
   }
   .mode-switch {
     margin-top: 10px;
@@ -373,8 +338,7 @@ input[type="range"]:focus-visible {
     margin: 0 0 4px;
     text-align: left;
   }
-  .motion-actions,
-  .dpad {
+  .motion-actions {
     justify-content: flex-start;
   }
   .slider-label {
