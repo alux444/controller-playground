@@ -1,6 +1,7 @@
 import QRCode from "qrcode";
 import type { ControllerState } from "../server/protocol.ts";
 import { element, socketUrl } from "./dom.ts";
+import { createAimStage } from "./aim-stage.ts";
 
 interface PlayerView {
   element: HTMLElement;
@@ -26,14 +27,15 @@ export function showHost(app: HTMLElement): void {
       <section class="console" aria-label="Controller monitor">
         <div class="console-header"><div><h2>Live input</h2><p class="panel-hint">Your controller will appear here.</p></div><span class="status" id="host-status"><i></i> Starting session</span></div>
         <div class="console-content">
-          <div class="player-grid" id="players"><div class="empty"><div class="empty-icon">⌁</div><h3>No phones connected</h3><p>Scan the code to join this session.</p></div></div>
+          <div class="monitor"><section class="aim-panel" id="aim-panel" aria-label="Shared aiming preview" hidden><div class="aim-heading"><h3>Aim together</h3><p>Each player has their own crosshair</p></div><div class="aim-field" id="aim-field"></div></section><div class="player-grid" id="players"><div class="empty"><div class="empty-icon">⌁</div><h3>No phones connected</h3><p>Scan the code to join this session.</p></div></div></div>
           <aside class="pairing"><div class="pairing-top"><span>Connect a phone</span></div><div class="qr-frame"><canvas id="qr" aria-label="QR code for joining this session"></canvas></div><p>Scan with your phone’s camera.</p><div class="pairing-link"><span>Or open this link</span><a id="join-link" href="#">Preparing link…</a></div></aside>
         </div>
-        <div class="console-footer"><span>Wheel and gamepad controls</span><span>Up to two phones</span></div>
+        <div class="console-footer"><span>Controller playground</span><span>Up to two phones</span></div>
       </section>
     </main>`;
   const socket = new WebSocket(socketUrl("host"));
   const players = new Map<string, PlayerView>();
+  const aimStage = createAimStage();
   const playerArea = element<HTMLElement>("#players");
   const status = element<HTMLElement>("#host-status");
   const count = element<HTMLElement>("#count");
@@ -64,6 +66,7 @@ export function showHost(app: HTMLElement): void {
       secondary: element(".secondary", card),
       lastInput: Date.now(),
     });
+    aimStage.add(id, slot);
     updateCount();
   }
 
@@ -71,13 +74,20 @@ export function showHost(app: HTMLElement): void {
     const player = players.get(id);
     if (!player) return;
     player.lastInput = Date.now();
-    player.element.classList.toggle("is-gamepad", state.mode === "gamepad");
+    player.element.classList.toggle("is-gamepad", state.mode !== "wheel");
     player.wheel.style.transform = `rotate(${state.x * 90}deg)`;
-    player.marker.style.transform = `translate(${state.x * 65}px, ${state.y * 65}px)`;
+    const markerX = state.mode === "motion-pointer" ? state.aimX : state.x;
+    const markerY = state.mode === "motion-pointer" ? state.aimY : state.y;
+    player.marker.style.transform = `translate(${markerX * 65}px, ${markerY * 65}px)`;
     player.values.textContent =
       state.mode === "wheel"
         ? `Wheel · ${Math.round(state.x * 100)}%`
-        : `Stick · ${Math.round(state.x * 100)} / ${Math.round(state.y * 100)}`;
+        : state.mode === "twin-stick"
+          ? "Twin sticks"
+          : state.mode === "motion-pointer"
+            ? "Motion pointer"
+            : `Stick · ${Math.round(state.x * 100)} / ${Math.round(state.y * 100)}`;
+    aimStage.update(id, state);
     player.primary.classList.toggle("active", state.primary);
     player.secondary.classList.toggle("active", state.secondary);
     element<HTMLElement>(".player-status", player.element).textContent =
@@ -86,9 +96,10 @@ export function showHost(app: HTMLElement): void {
 
   setInterval(
     () =>
-      players.forEach((player) => {
+      players.forEach((player, id) => {
         if (Date.now() - player.lastInput < 1800) return;
         updatePlayerNeutral(player);
+        aimStage.pause(id);
       }),
     500,
   );
@@ -129,6 +140,7 @@ export function showHost(app: HTMLElement): void {
     if (message.type === "left" && message.id) {
       players.get(message.id)?.element.remove();
       players.delete(message.id);
+      aimStage.remove(message.id);
       updateCount();
     }
   });

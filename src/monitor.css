@@ -126,3 +126,107 @@
   color: #fff;
   border-color: var(--blue);
 }
+
+.monitor {
+  min-width: 0;
+}
+.aim-panel {
+  padding: 20px 20px 0;
+}
+.aim-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.aim-heading h3 {
+  margin: 0;
+  font-size: 14px;
+}
+.aim-heading p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.aim-field {
+  position: relative;
+  min-height: 220px;
+  border: 1px solid #dfe3d9;
+  border-radius: 10px;
+  background: #f4f5f0;
+  overflow: hidden;
+}
+.aim-field::before,
+.aim-field::after {
+  content: "";
+  position: absolute;
+  background: #e1e5dd;
+}
+.aim-field::before {
+  left: 50%;
+  top: 0;
+  width: 1px;
+  height: 100%;
+}
+.aim-field::after {
+  top: 50%;
+  left: 0;
+  height: 1px;
+  width: 100%;
+}
+.aim-marker {
+  --player-colour: #365cc8;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--player-colour);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--player-colour);
+}
+.aim-marker::before,
+.aim-marker::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+.aim-marker::before {
+  width: 48px;
+  height: 2px;
+  left: -8px;
+  top: 15px;
+}
+.aim-marker::after {
+  height: 48px;
+  width: 2px;
+  top: -8px;
+  left: 15px;
+}
+.aim-marker span {
+  position: absolute;
+  left: 26px;
+  top: -12px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--player-colour);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+}
+.aim-marker.player-colour-2 {
+  --player-colour: #bb4d32;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.aim-marker.player-colour-2 span {
+  transform: rotate(-45deg);
+}
+.aim-marker.firing {
+  background: color-mix(in srgb, var(--player-colour) 25%, transparent);
+}

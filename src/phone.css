@@ -385,3 +385,27 @@ input[type="range"]:focus-visible {
     height: 48px;
   }
 }
+
+#twin-stick-controls {
+  display: flex;
+  justify-content: space-evenly;
+  gap: 18px;
+  padding: 14px 0;
+}
+.twin-pad {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.twin-pad .stick-knob {
+  display: block;
+}
+@media (max-height: 550px) and (orientation: landscape) {
+  #twin-stick-controls {
+    grid-area: input;
+    align-items: center;
+    padding: 0;
+  }
+}

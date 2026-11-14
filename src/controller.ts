@@ -1,6 +1,7 @@
 import type { ControllerState } from "../server/protocol.ts";
 import { element, socketUrl } from "./dom.ts";
 import { steeringAngle, steeringInput } from "./steering.ts";
+import { bindTwinSticks } from "./twin-stick.ts";
 
 interface MotionEventConstructor {
   requestPermission?: () => Promise<"granted" | "denied">;
@@ -12,7 +13,7 @@ export function showController(app: HTMLElement, room: string): void {
       <header class="phone-header"><span class="phone-logo">Controller playground</span><span class="phone-status" id="phone-status">Connecting…</span></header>
       <section class="phone-heading"><h1>Controller</h1><p>Choose a layout to try on the big screen.</p></section>
       <div class="configuration"><div class="player-picker"><span>Choose player</span><div role="group" aria-label="Player"><button type="button" data-slot="1" aria-pressed="false">Player 1</button><button type="button" data-slot="2" aria-pressed="false">Player 2</button></div></div>
-      <nav class="mode-switch" id="mode-switch" aria-label="Controller type" inert><button type="button" data-mode="wheel" aria-pressed="true">Wheel</button><button type="button" data-mode="gamepad" aria-pressed="false">Gamepad</button></nav></div>
+      <nav class="mode-switch" id="mode-switch" aria-label="Controller type" inert><button type="button" data-mode="wheel" aria-pressed="true">Wheel</button><button type="button" data-mode="gamepad" aria-pressed="false">Gamepad</button><button type="button" data-mode="twin-stick" aria-pressed="false">Twin sticks</button></nav></div>
       <section class="controller" id="controller" inert>
         <div class="controller-head"><span id="controller-label">Wheel</span><span>Live input <span class="live-dot">●</span></span></div>
         <div id="wheel-controls">
@@ -23,6 +24,7 @@ export function showController(app: HTMLElement, room: string): void {
           <label class="slider-label" for="steering">Touch steering <span>← &nbsp; →</span></label><input id="steering" type="range" min="-100" max="100" value="0" aria-label="Touch steering">
         </div>
         <div id="gamepad-controls" hidden><div class="stick-stage"><div class="stick" id="stick" role="application" aria-label="Touch joystick"><span id="stick-knob"></span></div></div><p class="instruction">Drag to move. Release to return to centre.</p><div class="dpad" aria-label="Move with buttons"><button data-direction="up" aria-label="Up">↑</button><button data-direction="left" aria-label="Left">←</button><button data-direction="down" aria-label="Down">↓</button><button data-direction="right" aria-label="Right">→</button></div></div>
+        <div id="twin-stick-controls" hidden><div class="twin-pad"><div class="stick" id="move-stick" role="application" tabindex="0" aria-label="Move stick. Use arrow keys or touch."><span class="stick-knob"></span></div><span>Move</span></div><div class="twin-pad"><div class="stick" id="aim-stick" role="application" tabindex="0" aria-label="Aim stick. Use arrow keys or touch."><span class="stick-knob"></span></div><span>Aim</span></div></div>
         <div class="actions"><button type="button" data-action="secondary"><span>B</span><small id="secondary-label">Brake</small></button><button type="button" data-action="primary"><span>A</span><small id="primary-label">Accelerate</small></button></div>
       </section>
       <footer class="phone-footer">Keep this page open while playing.</footer>
@@ -48,6 +50,7 @@ export function showController(app: HTMLElement, room: string): void {
   let reconnectSlot: number | undefined;
   let takenSlots: number[] = [];
   let lobbyConnected = false;
+  let resetTwinSticks = (): void => {};
 
   function updatePlayerChoices(): void {
     document
@@ -75,6 +78,7 @@ export function showController(app: HTMLElement, room: string): void {
   }
 
   function neutral(): void {
+    resetTwinSticks();
     state.x = 0;
     state.y = 0;
     state.aimX = 0;
@@ -172,6 +176,7 @@ export function showController(app: HTMLElement, room: string): void {
   bindActionButtons(context);
   bindMotion(context);
   bindGamepad(context);
+  resetTwinSticks = bindTwinSticks(state, transmit);
 }
 
 interface ControllerContext {
@@ -188,7 +193,10 @@ function bindModes({ state, neutral, transmit }: ControllerContext): void {
     .forEach((button) =>
       button.addEventListener("click", () => {
         neutral();
-        state.mode = button.dataset.mode === "gamepad" ? "gamepad" : "wheel";
+        const mode = button.dataset.mode;
+        if (mode !== "wheel" && mode !== "gamepad" && mode !== "twin-stick")
+          return;
+        state.mode = mode;
         document
           .querySelectorAll<HTMLButtonElement>("[data-mode]")
           .forEach((item) =>
@@ -197,10 +205,20 @@ function bindModes({ state, neutral, transmit }: ControllerContext): void {
         element<HTMLElement>("#wheel-controls").hidden = state.mode !== "wheel";
         element<HTMLElement>("#gamepad-controls").hidden =
           state.mode !== "gamepad";
+        element<HTMLElement>("#twin-stick-controls").hidden =
+          state.mode !== "twin-stick";
         element<HTMLElement>("#controller-label").textContent =
-          state.mode === "wheel" ? "Wheel" : "Gamepad";
+          state.mode === "wheel"
+            ? "Wheel"
+            : state.mode === "gamepad"
+              ? "Gamepad"
+              : "Twin sticks";
         element<HTMLElement>("#primary-label").textContent =
-          state.mode === "wheel" ? "Accelerate" : "Action A";
+          state.mode === "wheel"
+            ? "Accelerate"
+            : state.mode === "twin-stick"
+              ? "Fire"
+              : "Action A";
         element<HTMLElement>("#secondary-label").textContent =
           state.mode === "wheel" ? "Brake" : "Action B";
         transmit();
