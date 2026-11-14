@@ -1,5 +1,6 @@
 import type { ControllerState } from "../server/protocol.ts";
 import { element, socketUrl } from "./dom.ts";
+import { steeringInput } from "./steering.ts";
 
 interface MotionEventConstructor {
   requestPermission?: () => Promise<"granted" | "denied">;
@@ -17,6 +18,7 @@ export function showController(app: HTMLElement, room: string): void {
           <div class="wheel-stage"><div class="phone-wheel" id="phone-wheel"><span></span><span></span><span></span><b>●</b></div></div>
           <p class="instruction" id="motion-instruction">Enable motion, then hold your phone like a wheel.</p>
           <div class="motion-actions"><button class="pill bright" id="motion" type="button">Enable motion</button><button class="pill subtle" id="recenter" type="button">Recenter</button></div>
+          <label class="slider-label" for="sensitivity">Steering sensitivity <output id="sensitivity-value" for="sensitivity">100%</output></label><input id="sensitivity" type="range" min="70" max="200" step="10" value="100" aria-label="Steering sensitivity">
           <label class="slider-label" for="steering">Touch steering <span>← &nbsp; →</span></label><input id="steering" type="range" min="-100" max="100" value="0" aria-label="Touch steering">
         </div>
         <div id="gamepad-controls" hidden><div class="stick-stage"><div class="stick" id="stick" role="application" aria-label="Touch joystick"><span id="stick-knob"></span></div></div><p class="instruction">Drag to move. Release to return to centre.</p><div class="dpad" aria-label="Move with buttons"><button data-direction="up" aria-label="Up">↑</button><button data-direction="left" aria-label="Left">←</button><button data-direction="down" aria-label="Down">↓</button><button data-direction="right" aria-label="Right">→</button></div></div>
@@ -157,9 +159,28 @@ function bindActionButtons({ state, transmit }: ControllerContext): void {
 
 function bindMotion({ state, render, transmit }: ControllerContext): void {
   const slider = element<HTMLInputElement>("#steering");
+  const sensitivity = element<HTMLInputElement>("#sensitivity");
+  const sensitivityValue = element<HTMLOutputElement>("#sensitivity-value");
   let currentAngle: number | undefined;
   let centerAngle: number | undefined;
   let motionEnabled = false;
+
+  sensitivity.addEventListener("input", () => {
+    sensitivityValue.textContent = `${sensitivity.value}%`;
+    if (
+      !motionEnabled ||
+      currentAngle === undefined ||
+      centerAngle === undefined
+    )
+      return;
+    state.x = steeringInput(
+      currentAngle,
+      centerAngle,
+      Number(sensitivity.value) / 100,
+    );
+    render();
+    transmit();
+  });
   slider.addEventListener("input", () => {
     motionEnabled = false;
     element<HTMLButtonElement>("#motion").textContent = "Enable motion";
@@ -225,8 +246,11 @@ function bindMotion({ state, render, transmit }: ControllerContext): void {
         "Hold your phone like a wheel, then turn it to steer.";
       element<HTMLButtonElement>("#motion").textContent = "Motion enabled ✓";
     }
-    const difference = ((currentAngle - centerAngle + 540) % 360) - 180;
-    state.x = Math.max(-1, Math.min(1, difference / 45));
+    state.x = steeringInput(
+      currentAngle,
+      centerAngle,
+      Number(sensitivity.value) / 100,
+    );
     render();
     transmit();
   });

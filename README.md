@@ -20,6 +20,6 @@ For HTTPS, provide a reachable HTTPS address with `PUBLIC_URL` when using a secu
 PUBLIC_URL=https://your-trusted-address.example npm start
 ```
 
-In wheel mode, tap **Enable motion** and allow access. Hold the phone like a wheel and tap **Recenter** in a comfortable position. Touch steering is available without motion. The gamepad offers a touch joystick and directional buttons.
+In wheel mode, tap **Enable motion** and allow access. Hold the phone like a wheel and tap **Recenter** in a comfortable position. Adjust **Steering sensitivity** to change how far you need to turn. Touch steering is available without motion. The gamepad offers a touch joystick and directional buttons.
 
 Run `npm test` for protocol checks. This is a proof of concept; real-device motion and latency depend on the browser and network.
