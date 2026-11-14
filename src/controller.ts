@@ -189,10 +189,17 @@ function bindMotion({ state, render, transmit }: ControllerContext): void {
         throw new Error("denied");
       if (!window.isSecureContext) throw new Error("https");
       motionEnabled = true;
+      currentAngle = undefined;
       centerAngle = undefined;
       element<HTMLElement>("#motion-instruction").textContent =
-        "Hold your phone like a wheel, then turn it to steer.";
-      element<HTMLButtonElement>("#motion").textContent = "Motion enabled ✓";
+        "Waiting for motion… Hold your phone like a wheel.";
+      element<HTMLButtonElement>("#motion").textContent = "Waiting for motion…";
+      setTimeout(() => {
+        if (!motionEnabled || currentAngle !== undefined) return;
+        element<HTMLElement>("#motion-instruction").textContent =
+          "No motion detected. Check your browser settings, or use touch steering.";
+        element<HTMLButtonElement>("#motion").textContent = "Try motion again";
+      }, 3000);
     } catch {
       element<HTMLElement>("#motion-instruction").textContent =
         "Motion unavailable. Use touch steering below; motion requires HTTPS and permission.";
@@ -212,7 +219,12 @@ function bindMotion({ state, render, transmit }: ControllerContext): void {
     currentAngle =
       (Math.atan2(Math.sin(gamma), Math.sin(beta) * Math.cos(gamma)) * 180) /
       Math.PI;
-    if (centerAngle === undefined) centerAngle = currentAngle;
+    if (centerAngle === undefined) {
+      centerAngle = currentAngle;
+      element<HTMLElement>("#motion-instruction").textContent =
+        "Hold your phone like a wheel, then turn it to steer.";
+      element<HTMLButtonElement>("#motion").textContent = "Motion enabled ✓";
+    }
     const difference = ((currentAngle - centerAngle + 540) % 360) - 180;
     state.x = Math.max(-1, Math.min(1, difference / 45));
     render();
