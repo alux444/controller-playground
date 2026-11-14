@@ -1,0 +1,256 @@
+/* Shared contract: tokens supply values; kit styles supply visual treatment. */
+[data-ui-kit] {
+	font-family: var(--font-family-body, system-ui, sans-serif);
+}
+[data-ui-kit] :where(h1, h2, h3, h4, h5, h6) {
+	font-family: var(--font-family-heading, inherit);
+}
+
+:where([data-ui-kit])
+	:is(button, select, a[href], [role="button"], [role="link"]) {
+	cursor: pointer;
+}
+:is(button, select, a[href], [role="button"], [role="link"]):is(
+		[class^="ui-"],
+		[class*=" ui-"]
+	):is(
+		:disabled,
+		[aria-disabled="true"],
+		[data-disabled]:not([data-disabled="false"])
+	),
+:where([data-ui-kit])
+	:is(button, select, a[href], [role="button"], [role="link"]):is(
+		:disabled,
+		[aria-disabled="true"],
+		[data-disabled]:not([data-disabled="false"])
+	) {
+	cursor: not-allowed;
+}
+
+/* Component display rules must not override the browser's hidden contract. */
+[data-ui-kit][hidden]:not([hidden="until-found"]),
+[data-ui-kit] [hidden]:not([hidden="until-found"]) {
+	/* biome-ignore lint/complexity/noImportantStyles: Native hidden must outrank component display overrides. */
+	display: none !important;
+}
+
+:root,
+[data-ui-kit],
+[data-density="default"] {
+	--space-content-gap: var(--space-default-content-gap);
+	--space-layout-gutter: var(--space-default-layout-gutter);
+	--space-section-gap: var(--space-default-section-gap);
+	--density-content-gap-scale: var(--density-default-content-gap-scale);
+	--density-control-gap-scale: var(--density-default-control-gap-scale);
+	--density-control-padding-block-scale: var(
+		--density-default-control-padding-block-scale
+	);
+	--density-control-padding-inline-scale: var(
+		--density-default-control-padding-inline-scale
+	);
+}
+
+[data-density="compact"] {
+	--space-content-gap: var(--space-compact-content-gap);
+	--space-layout-gutter: var(--space-compact-layout-gutter);
+	--space-section-gap: var(--space-compact-section-gap);
+	--density-content-gap-scale: var(--density-compact-content-gap-scale);
+	--density-control-gap-scale: var(--density-compact-control-gap-scale);
+	--density-control-padding-block-scale: var(
+		--density-compact-control-padding-block-scale
+	);
+	--density-control-padding-inline-scale: var(
+		--density-compact-control-padding-inline-scale
+	);
+}
+
+[data-density="comfortable"] {
+	--space-content-gap: var(--space-comfortable-content-gap);
+	--space-layout-gutter: var(--space-comfortable-layout-gutter);
+	--space-section-gap: var(--space-comfortable-section-gap);
+	--density-content-gap-scale: var(--density-comfortable-content-gap-scale);
+	--density-control-gap-scale: var(--density-comfortable-control-gap-scale);
+	--density-control-padding-block-scale: var(
+		--density-comfortable-control-padding-block-scale
+	);
+	--density-control-padding-inline-scale: var(
+		--density-comfortable-control-padding-inline-scale
+	);
+}
+
+/* Stationary feedback by default; positional hover feedback is opt-in. */
+:root,
+[data-ui-kit],
+[data-motion="standard"] {
+	--interaction-duration: var(--duration-150);
+	--interaction-hover-offset: 0px;
+}
+[data-motion="expressive"] {
+	--interaction-duration: var(--duration-150);
+	--interaction-hover-offset: -1px;
+}
+[data-motion="reduced"] {
+	--interaction-duration: 0ms;
+	--interaction-hover-offset: 0px;
+}
+[data-motion="reduced"],
+[data-motion="reduced"] * {
+	/* biome-ignore lint/complexity/noImportantStyles: Reduced motion must override component and skin animations. */
+	animation: none !important;
+	/* biome-ignore lint/complexity/noImportantStyles: Reduced motion must override component and skin transitions. */
+	transition: none !important;
+	/* biome-ignore lint/complexity/noImportantStyles: Reduced motion overrides nested expressive presets. */
+	--interaction-hover-offset: 0px !important;
+}
+@media (prefers-reduced-motion: reduce) {
+	:root,
+	[data-ui-kit],
+	[data-motion],
+	[data-ui-kit] * {
+		--interaction-duration: 0ms;
+		/* biome-ignore lint/complexity/noImportantStyles: Reduced motion overrides nested expressive presets. */
+		--interaction-hover-offset: 0px !important;
+	}
+}
+
+/* Solid controls; opt-in glass for navigation, overlays, and selected panels. */
+[data-ui-kit="aero"] .ui-button {
+	--button-outer-radius: 10px;
+	border-radius: var(--button-outer-radius);
+	transition:
+		translate var(--interaction-duration, var(--duration-150))
+		var(--easing-standard),
+		box-shadow var(--interaction-duration, var(--duration-150))
+		var(--easing-standard),
+		background-color var(--interaction-duration, var(--duration-150))
+		var(--easing-standard);
+}
+[data-ui-kit="aero"] .ui-button[data-variant="primary"] {
+	box-shadow:
+		inset 0 -2px 4px
+		color-mix(in srgb, var(--button-foreground) 14%, transparent),
+		inset 0 1px 0 #ffffff30;
+}
+[data-ui-kit="aero"] .ui-card {
+	border-radius: 24px 24px 12px 12px;
+	border-top: 2px solid var(--color-action-primary);
+	box-shadow:
+		0 8px 28px #0206170d,
+		inset 0 1px 0 #ffffff16;
+}
+[data-ui-kit="aero"] .aero-glass {
+	background: var(--color-background-surface);
+	border: 1px solid var(--color-border-default);
+	border-radius: 20px;
+}
+@supports (backdrop-filter: blur(16px)) {
+	[data-ui-kit="aero"] .aero-glass {
+		background: color-mix(
+			in srgb,
+			var(--color-background-surface) 92%,
+			transparent
+		);
+		backdrop-filter: blur(16px);
+	}
+}
+[data-ui-kit="aero"] .ui-input,
+[data-ui-kit="aero"] .ui-textarea {
+	border-radius: 10px;
+}
+[data-ui-kit="aero"] .ui-tabs__list {
+	border-radius: 999px;
+	padding: 4px;
+}
+[data-ui-kit="aero"] .ui-tabs__tab {
+	border-radius: 999px;
+	transition:
+		background-color var(--interaction-duration, var(--duration-150))
+		var(--easing-standard),
+		color var(--interaction-duration, var(--duration-150))
+		var(--easing-standard);
+}
+@media (prefers-reduced-motion: reduce) {
+	[data-ui-kit="aero"] .ui-button,
+	[data-ui-kit="aero"] .ui-tabs__tab {
+		transition: none;
+	}
+}
+@media (forced-colors: active) {
+	[data-ui-kit="aero"] .aero-glass {
+		background: Canvas;
+		backdrop-filter: none;
+		border-color: CanvasText;
+	}
+}
+
+/* Recessed controls and inset segments distinguish Aero without movement. */
+[data-ui-kit="aero"] .ui-input:not(:focus-within),
+[data-ui-kit="aero"] .ui-textarea:not(:focus) {
+	border-radius: 10px;
+	background: var(--color-background-canvas);
+	box-shadow: inset 0 2px 4px #0206170d;
+}
+[data-ui-kit="aero"] .ui-tabs__list {
+	width: fit-content;
+	max-width: 100%;
+	flex-wrap: wrap;
+	gap: 4px;
+	border: 1px solid var(--color-border-default);
+	border-radius: 14px;
+	background: var(--color-background-canvas);
+	box-shadow: inset 0 2px 5px #0206170a;
+	padding: 5px;
+}
+[data-ui-kit="aero"] .ui-tabs__tab {
+	border-radius: 9px;
+	padding: 10px 16px;
+}
+[data-ui-kit="aero"] .ui-tabs__tab[data-active] {
+	background: var(--color-background-surface);
+	color: var(--color-foreground-default);
+	box-shadow:
+		0 1px 4px #02061718,
+		inset 0 0 0 1px var(--color-border-default);
+}
+[data-ui-kit="aero"] .ui-tabs__tab[data-active]::after {
+	display: none;
+}
+[data-ui-kit="aero"] .ui-checkbox__indicator {
+	border-radius: 50%;
+}
+[data-ui-kit="aero"] .ui-switch__thumb {
+	box-shadow:
+		inset 0 1px 2px #ffffff50,
+		0 1px 4px #02061730;
+}
+[data-ui-kit="aero"] .ui-card__title {
+	letter-spacing: -0.025em;
+}
+
+/* Compact status lozenges inspired by Atlassian's current examples. */
+[data-ui-kit="aero"] .ui-badge {
+	border-radius: 4px;
+	padding: 2px 4px;
+	font-size: 12px;
+	line-height: 16px;
+	font-weight: var(--font-weight-medium);
+	letter-spacing: normal;
+	text-transform: none;
+	box-shadow: none;
+}
+[data-ui-kit="aero"] .ui-badge[data-shape="pill"] {
+	border-radius: var(--radius-pill);
+}
+[data-ui-kit="aero"] .ui-badge[data-tone="neutral"] {
+	--badge-border: color-mix(
+		in srgb,
+		var(--color-foreground-muted) 32%,
+		var(--color-background-surface)
+	);
+	--badge-background: color-mix(
+		in srgb,
+		var(--color-foreground-muted) 8%,
+		var(--color-background-surface)
+	);
+	--badge-foreground: var(--color-foreground-default);
+}

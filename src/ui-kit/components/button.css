@@ -1,0 +1,194 @@
+.ui-button {
+	position: relative;
+	min-width: 0;
+	max-width: 100%;
+	display: inline-flex;
+	min-height: var(--button-height);
+	box-sizing: border-box;
+	align-items: center;
+	justify-content: center;
+	gap: calc(var(--button-gap) * var(--density-control-gap-scale, 1));
+	border: var(--border-width-100) solid var(--button-border);
+	border-radius: var(--radius-control);
+	background: var(--button-background);
+	color: var(--button-foreground);
+	padding-block: calc(
+		var(--button-padding-block) *
+		var(--density-control-padding-block-scale, 1)
+	);
+	padding-inline: calc(
+		var(--button-padding-inline) *
+		var(--density-control-padding-inline-scale, 1)
+	);
+	font-family: inherit;
+	font-size: var(--button-font-size);
+	font-weight: var(--button-font-weight);
+	line-height: var(--button-line-height);
+	text-align: center;
+	cursor: pointer;
+	transition:
+		translate var(--interaction-duration, var(--duration-150))
+		var(--easing-standard),
+		background-color var(--interaction-duration, var(--duration-150))
+		var(--easing-standard),
+		border-color var(--interaction-duration, var(--duration-150))
+		var(--easing-standard),
+		color var(--interaction-duration, var(--duration-150))
+		var(--easing-standard);
+}
+
+.ui-button[data-size="sm"] {
+	--button-height: var(--button-height-sm);
+	--button-gap: var(--button-gap-sm);
+	--button-padding-block: var(--button-padding-block-sm);
+	--button-padding-inline: var(--button-padding-inline-sm);
+	--button-font-size: var(--button-font-size-sm);
+	--button-line-height: var(--button-line-height-sm);
+	--button-font-weight: var(--button-font-weight-sm);
+	--button-icon-size: var(--button-icon-size-sm);
+}
+.ui-button[data-size="md"] {
+	--button-height: var(--button-height-md);
+	--button-gap: var(--button-gap-md);
+	--button-padding-block: var(--button-padding-block-md);
+	--button-padding-inline: var(--button-padding-inline-md);
+	--button-font-size: var(--button-font-size-md);
+	--button-line-height: var(--button-line-height-md);
+	--button-font-weight: var(--button-font-weight-md);
+	--button-icon-size: var(--button-icon-size-md);
+}
+.ui-button[data-size="lg"] {
+	--button-height: var(--button-height-lg);
+	--button-gap: var(--button-gap-lg);
+	--button-padding-block: var(--button-padding-block-lg);
+	--button-padding-inline: var(--button-padding-inline-lg);
+	--button-font-size: var(--button-font-size-lg);
+	--button-line-height: var(--button-line-height-lg);
+	--button-font-weight: var(--button-font-weight-lg);
+	--button-icon-size: var(--button-icon-size-lg);
+}
+.ui-button[data-icon-only] {
+	width: var(--button-height);
+	height: var(--button-height);
+	min-height: var(--button-height);
+	flex: none;
+	padding: 0;
+}
+.ui-button__label {
+	display: block;
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+.ui-button[data-variant="primary"] {
+	--button-background: var(--button-primary-background);
+	--button-foreground: var(--button-primary-foreground);
+	--button-border: var(--button-primary-border);
+	--button-hover-background: var(--button-primary-hover-background);
+	--button-hover-foreground: var(--button-primary-hover-foreground);
+	--button-hover-border: var(--button-primary-hover-border);
+}
+.ui-button[data-variant="secondary"] {
+	--button-background: var(--button-secondary-background);
+	--button-foreground: var(--button-secondary-foreground);
+	--button-border: var(--button-secondary-border);
+	--button-hover-background: var(--button-secondary-hover-background);
+	--button-hover-foreground: var(--button-secondary-hover-foreground);
+	--button-hover-border: var(--button-secondary-hover-border);
+}
+.ui-button[data-variant="destructive"] {
+	--button-background: var(--button-destructive-background);
+	--button-foreground: var(--button-destructive-foreground);
+	--button-border: var(--button-destructive-border);
+	--button-hover-background: var(--button-destructive-hover-background);
+	--button-hover-foreground: var(--button-destructive-hover-foreground);
+	--button-hover-border: var(--button-destructive-hover-border);
+}
+.ui-button[data-variant="quiet"] {
+	--button-background: var(--button-quiet-background);
+	--button-foreground: var(--button-quiet-foreground);
+	--button-border: var(--button-quiet-border);
+	--button-hover-background: var(--button-quiet-hover-background);
+	--button-hover-foreground: var(--button-quiet-hover-foreground);
+	--button-hover-border: var(--button-quiet-hover-border);
+}
+.ui-button:hover:not(:disabled) {
+	background: var(--button-hover-background);
+	color: var(--button-hover-foreground);
+	border-color: var(--button-hover-border);
+}
+.ui-button:focus-visible {
+	outline: var(--button-focus-width) solid var(--button-focus-color);
+	outline-offset: var(--button-focus-offset);
+}
+.ui-button:disabled {
+	cursor: not-allowed;
+	opacity: var(--opacity-disabled);
+}
+.ui-button__icon,
+.ui-button__spinner {
+	width: var(--button-icon-size);
+	height: var(--button-icon-size);
+	flex: none;
+}
+.ui-button__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 1;
+}
+.ui-button__icon svg,
+.ui-button__icon > span {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+.ui-button__label > svg {
+	display: inline-block;
+	vertical-align: middle;
+	margin-inline: calc(var(--button-gap) * var(--density-control-gap-scale, 1));
+	width: var(--button-icon-size);
+	height: var(--button-icon-size);
+	flex: none;
+}
+.ui-button__label > svg:first-child {
+	margin-inline-start: 0;
+}
+.ui-button__label > svg:last-child {
+	margin-inline-end: 0;
+}
+.ui-button[data-loading] > .ui-button__icon,
+.ui-button[data-loading] > .ui-button__label {
+	opacity: 0;
+}
+.ui-button__spinner {
+	position: absolute;
+	fill: none;
+	animation: button-spin 700ms linear infinite;
+}
+.ui-button__spinner circle {
+	stroke: currentColor;
+	stroke-width: 2;
+	opacity: 0.25;
+}
+.ui-button__spinner path {
+	stroke: currentColor;
+	stroke-linecap: round;
+	stroke-width: 2;
+}
+@keyframes button-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.ui-button {
+		transition: none;
+	}
+	.ui-button__spinner {
+		animation: none;
+	}
+}
+
+.ui-button:hover:not(:disabled):not([data-loading]) {
+	translate: 0 var(--interaction-hover-offset, 0px);
+}
