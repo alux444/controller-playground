@@ -9,7 +9,7 @@ import { parseControllerState } from "./protocol.ts";
 
 interface Room {
   host: WebSocket;
-  players: Map<WebSocket, { id: string; slot: number }>;
+  players: Map<WebSocket, { id: string; slot?: number }>;
 }
 
 const port = Number(process.env.PORT ?? 4173);
@@ -38,6 +38,37 @@ function localAddress(): string {
 
 function send(socket: WebSocket, data: object): void {
   if (socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify(data));
+}
+
+function publishSlots(room: Room): void {
+  const taken = [...room.players.values()].flatMap((player) =>
+    player.slot === undefined ? [] : [player.slot],
+  );
+  room.players.forEach((_player, socket) =>
+    send(socket, { type: "slots", taken }),
+  );
+}
+
+function chooseSlot(room: Room, socket: WebSocket, slot: unknown): void {
+  const player = room.players.get(socket);
+  if (!player || (slot !== 1 && slot !== 2)) return;
+  const taken = [...room.players.entries()].some(
+    ([other, value]) => other !== socket && value.slot === slot,
+  );
+  if (taken) {
+    send(socket, { type: "slot-taken", slot });
+    publishSlots(room);
+    return;
+  }
+  if (player.slot !== undefined && player.slot !== slot) {
+    send(room.host, { type: "left", id: player.id });
+  }
+  if (player.slot !== slot) {
+    player.slot = slot;
+    send(room.host, { type: "joined", id: player.id, slot });
+  }
+  send(socket, { type: "joined", id: player.id, slot });
+  publishSlots(room);
 }
 
 const handler: RequestListener = (request, response) => {
@@ -102,24 +133,33 @@ sockets.on("connection", (socket, request) => {
     return;
   }
   const id = randomUUID();
-  const occupied = [...room.players.values()].map((player) => player.slot);
-  const slot = occupied.includes(1) ? 2 : 1;
-  room.players.set(socket, { id, slot });
-  send(socket, { type: "joined", id, slot });
-  send(room.host, { type: "joined", id, slot });
+  room.players.set(socket, { id });
+  send(socket, { type: "lobby" });
+  publishSlots(room);
   socket.on("message", (message) => {
     try {
-      const state = parseControllerState(
-        JSON.parse(message.toString()) as unknown,
-      );
+      const data: unknown = JSON.parse(message.toString());
+      if (
+        typeof data === "object" &&
+        data !== null &&
+        "type" in data &&
+        data.type === "select"
+      ) {
+        chooseSlot(room, socket, "slot" in data ? data.slot : undefined);
+        return;
+      }
+      if (room.players.get(socket)?.slot === undefined) return;
+      const state = parseControllerState(data);
       if (state) send(room.host, { type: "input", id, state });
     } catch {
       return;
     }
   });
   socket.on("close", () => {
+    const selected = room.players.get(socket)?.slot !== undefined;
     room.players.delete(socket);
-    send(room.host, { type: "left", id });
+    if (selected) send(room.host, { type: "left", id });
+    publishSlots(room);
   });
 });
 
