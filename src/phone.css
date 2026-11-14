@@ -239,3 +239,149 @@ input[type="range"]:focus-visible {
     max-width: 700px;
   }
 }
+
+.player-picker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.player-picker [role="group"] {
+  display: flex;
+  gap: 6px;
+}
+.player-picker button {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid #d5d9d2;
+  border-radius: 8px;
+  background: #fff;
+  color: #353b35;
+  font-size: 12px;
+  font-weight: 600;
+}
+.player-picker button[aria-pressed="true"] {
+  color: #fff;
+  border-color: var(--blue);
+  background: var(--blue);
+}
+.player-picker button:disabled {
+  color: #8b908a;
+  background: #e9ebe7;
+}
+:is(.mode-switch, .controller)[inert] {
+  opacity: 0.52;
+}
+.rotate-prompt {
+  display: none;
+}
+@media (orientation: portrait) and (pointer: coarse) {
+  .rotate-prompt {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    background: #f3f2ec;
+    text-align: center;
+  }
+  .rotate-icon {
+    color: var(--blue);
+    font-size: 48px;
+  }
+  .rotate-prompt h2 {
+    margin: 12px 0 8px;
+    font-size: 22px;
+  }
+  .rotate-prompt p {
+    max-width: 300px;
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+@media (max-height: 550px) and (orientation: landscape) {
+  .phone-shell {
+    max-width: 900px;
+  }
+  .configuration {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 8px 0;
+  }
+  .player-picker {
+    margin: 0;
+  }
+  .player-picker > span {
+    display: none;
+  }
+  .mode-switch {
+    flex: 1;
+    margin: 0;
+  }
+  .controller {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "heading heading" "input actions";
+    gap: 8px 16px;
+  }
+  .controller-head {
+    grid-area: heading;
+  }
+  #wheel-controls,
+  #gamepad-controls {
+    grid-area: input;
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    align-items: center;
+    gap: 0 14px;
+  }
+  .wheel-stage {
+    grid-column: 1;
+    grid-row: 1 / span 6;
+    height: 120px;
+  }
+  #wheel-controls > :not(.wheel-stage),
+  #gamepad-controls > :not(.stick-stage) {
+    grid-column: 2;
+  }
+  .stick-stage {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    height: 120px;
+  }
+  .instruction {
+    margin: 0 0 4px;
+    text-align: left;
+  }
+  .motion-actions,
+  .dpad {
+    justify-content: flex-start;
+  }
+  .slider-label {
+    margin-top: 4px;
+  }
+  input[type="range"] {
+    height: 32px;
+    margin-top: 0;
+  }
+  .actions {
+    grid-area: actions;
+    align-self: center;
+    flex-direction: column-reverse;
+    gap: 6px;
+    margin: 0;
+  }
+  .actions button span {
+    width: 48px;
+    height: 48px;
+  }
+}

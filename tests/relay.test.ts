@@ -71,7 +71,8 @@ test(
     second.socket.send(JSON.stringify({ type: "select", slot: 2 }));
     assert.equal((await second.nextType("slot-taken")).slot, 2);
     second.socket.send(JSON.stringify({ type: "select", slot: 1 }));
-    assert.equal((await second.nextType("joined")).slot, 1);
+    const secondJoin = await second.nextType("joined");
+    assert.equal(secondJoin.slot, 1);
     await host.nextType("joined");
     first.socket.send(
       JSON.stringify({
@@ -90,10 +91,14 @@ test(
     assert.equal((await once(third.socket, "close"))[0], 1008);
     first.socket.close();
     assert.equal((await host.nextType("left")).id, firstJoin.id);
+    second.socket.send(JSON.stringify({ type: "select", slot: 2 }));
+    assert.equal((await host.nextType("left")).id, secondJoin.id);
+    assert.equal((await host.nextType("joined")).slot, 2);
+    assert.equal((await second.nextType("joined")).slot, 2);
     const replacement = peer(playerUrl);
     await replacement.nextType("lobby");
-    replacement.socket.send(JSON.stringify({ type: "select", slot: 2 }));
-    assert.equal((await replacement.nextType("joined")).slot, 2);
+    replacement.socket.send(JSON.stringify({ type: "select", slot: 1 }));
+    assert.equal((await replacement.nextType("joined")).slot, 1);
     const secondClosed = once(second.socket, "close");
     const replacementClosed = once(replacement.socket, "close");
     host.socket.close();

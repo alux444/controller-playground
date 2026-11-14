@@ -49,8 +49,12 @@ export function showHost(app: HTMLElement): void {
     if (players.size === 0) playerArea.innerHTML = "";
     const card = document.createElement("article");
     card.className = "player";
+    card.dataset.slot = String(slot);
     card.innerHTML = `<div class="player-top"><span>PLAYER ${String(slot).padStart(2, "0")}</span><span class="player-status">● Connected</span></div><div class="display"><div class="crosshair"></div><div class="wheel-visual"><span></span><span></span><span></span><b>✳</b></div><div class="marker"></div></div><div class="player-bottom"><div><span class="label">Controller</span><strong class="values">Wheel · 0%</strong></div><div class="button-indicators"><span class="indicator primary">A</span><span class="indicator secondary">B</span></div></div>`;
-    playerArea.append(card);
+    const nextPlayer = [
+      ...playerArea.querySelectorAll<HTMLElement>(".player"),
+    ].find((other) => Number(other.dataset.slot) > slot);
+    playerArea.insertBefore(card, nextPlayer ?? null);
     players.set(id, {
       element: card,
       wheel: element(".wheel-visual", card),

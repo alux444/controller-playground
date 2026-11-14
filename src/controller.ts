@@ -11,8 +11,9 @@ export function showController(app: HTMLElement, room: string): void {
     <main class="phone-shell">
       <header class="phone-header"><span class="phone-logo">Controller playground</span><span class="phone-status" id="phone-status">Connecting…</span></header>
       <section class="phone-heading"><h1>Controller</h1><p>Choose a layout to try on the big screen.</p></section>
-      <nav class="mode-switch" aria-label="Controller type"><button type="button" data-mode="wheel" aria-pressed="true">Wheel</button><button type="button" data-mode="gamepad" aria-pressed="false">Gamepad</button></nav>
-      <section class="controller" id="controller">
+      <div class="configuration"><div class="player-picker"><span>Choose player</span><div role="group" aria-label="Player"><button type="button" data-slot="1" aria-pressed="false">Player 1</button><button type="button" data-slot="2" aria-pressed="false">Player 2</button></div></div>
+      <nav class="mode-switch" id="mode-switch" aria-label="Controller type" inert><button type="button" data-mode="wheel" aria-pressed="true">Wheel</button><button type="button" data-mode="gamepad" aria-pressed="false">Gamepad</button></nav></div>
+      <section class="controller" id="controller" inert>
         <div class="controller-head"><span id="controller-label">Wheel</span><span>Live input <span class="live-dot">●</span></span></div>
         <div id="wheel-controls">
           <div class="wheel-stage"><div class="phone-wheel" id="phone-wheel"><span></span><span></span><span></span><b>●</b></div></div>
@@ -25,6 +26,7 @@ export function showController(app: HTMLElement, room: string): void {
         <div class="actions"><button type="button" data-action="secondary"><span>B</span><small id="secondary-label">Brake</small></button><button type="button" data-action="primary"><span>A</span><small id="primary-label">Accelerate</small></button></div>
       </section>
       <footer class="phone-footer">Keep this page open while playing.</footer>
+      <div class="rotate-prompt" role="status"><div class="rotate-icon" aria-hidden="true">↻</div><h2>Turn your phone sideways</h2><p>The controller works in landscape. If the screen doesn't rotate, turn off Portrait Orientation Lock.</p></div>
     </main>`;
   let socket = new WebSocket(socketUrl("player", room));
   const state: ControllerState = {
@@ -37,6 +39,28 @@ export function showController(app: HTMLElement, room: string): void {
   const phoneStatus = element<HTMLElement>("#phone-status");
   const wheel = element<HTMLElement>("#phone-wheel");
   const slider = element<HTMLInputElement>("#steering");
+  const portrait = window.matchMedia(
+    "(orientation: portrait) and (pointer: coarse)",
+  );
+  let selectedSlot: number | undefined;
+  let reconnectSlot: number | undefined;
+  let takenSlots: number[] = [];
+  let lobbyConnected = false;
+
+  function updatePlayerChoices(): void {
+    document
+      .querySelectorAll<HTMLButtonElement>("[data-slot]")
+      .forEach((button) => {
+        const slot = Number(button.dataset.slot);
+        const selected = slot === selectedSlot;
+        const occupied = !selected && takenSlots.includes(slot);
+        button.disabled = !lobbyConnected || occupied;
+        button.setAttribute("aria-pressed", String(selected));
+        button.textContent = `Player ${slot}${occupied ? " · Taken" : ""}`;
+      });
+    element<HTMLElement>("#mode-switch").inert = selectedSlot === undefined;
+    element<HTMLElement>("#controller").inert = selectedSlot === undefined;
+  }
 
   function render(): void {
     wheel.style.transform = `rotate(${state.x * 90}deg)`;
@@ -44,7 +68,7 @@ export function showController(app: HTMLElement, room: string): void {
   }
 
   function transmit(): void {
-    if (socket.readyState === WebSocket.OPEN)
+    if (selectedSlot !== undefined && socket.readyState === WebSocket.OPEN)
       socket.send(JSON.stringify(state));
   }
 
@@ -63,15 +87,45 @@ export function showController(app: HTMLElement, room: string): void {
 
   function connect(): void {
     socket.addEventListener("message", (event: MessageEvent<string>) => {
-      const message = JSON.parse(event.data) as { type: string };
+      const message = JSON.parse(event.data) as {
+        type: string;
+        slot?: number;
+        taken?: number[];
+      };
+      if (message.type === "lobby") {
+        lobbyConnected = true;
+        updatePlayerChoices();
+        if (reconnectSlot !== undefined) {
+          socket.send(JSON.stringify({ type: "select", slot: reconnectSlot }));
+          return;
+        }
+        phoneStatus.textContent = "Choose a player";
+      }
       if (message.type === "joined") {
-        phoneStatus.textContent = "● Connected";
+        selectedSlot = message.slot;
+        reconnectSlot = undefined;
+        phoneStatus.textContent = `● Player ${selectedSlot} connected`;
         phoneStatus.classList.add("connected");
+        updatePlayerChoices();
         transmit();
+      }
+      if (message.type === "slots") {
+        takenSlots = message.taken ?? [];
+        updatePlayerChoices();
+      }
+      if (message.type === "slot-taken") {
+        reconnectSlot = undefined;
+        phoneStatus.textContent = `Player ${message.slot} is taken`;
+        phoneStatus.classList.remove("connected");
       }
     });
     socket.addEventListener("close", (event) => {
       neutral();
+      reconnectSlot = selectedSlot;
+      selectedSlot = undefined;
+      takenSlots = [];
+      lobbyConnected = false;
+      updatePlayerChoices();
       phoneStatus.classList.remove("connected");
       if (event.code === 1008 || event.code === 1000) {
         phoneStatus.textContent = "Session ended · Scan again";
@@ -84,13 +138,32 @@ export function showController(app: HTMLElement, room: string): void {
       }, 1500);
     });
   }
+  updatePlayerChoices();
   connect();
+  document
+    .querySelectorAll<HTMLButtonElement>("[data-slot]")
+    .forEach((button) => {
+      button.addEventListener("click", () => {
+        if (socket.readyState !== WebSocket.OPEN) return;
+        neutral();
+        socket.send(
+          JSON.stringify({ type: "select", slot: Number(button.dataset.slot) }),
+        );
+      });
+    });
   setInterval(transmit, 150);
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) neutral();
   });
+  portrait.addEventListener("change", neutral);
 
-  const context: ControllerContext = { state, neutral, render, transmit };
+  const context: ControllerContext = {
+    state,
+    neutral,
+    portrait,
+    render,
+    transmit,
+  };
   bindModes(context);
   bindActionButtons(context);
   bindMotion(context);
@@ -100,6 +173,7 @@ export function showController(app: HTMLElement, room: string): void {
 interface ControllerContext {
   state: ControllerState;
   neutral: () => void;
+  portrait: MediaQueryList;
   render: () => void;
   transmit: () => void;
 }
@@ -157,13 +231,23 @@ function bindActionButtons({ state, transmit }: ControllerContext): void {
     });
 }
 
-function bindMotion({ state, render, transmit }: ControllerContext): void {
+function bindMotion({
+  state,
+  portrait,
+  render,
+  transmit,
+}: ControllerContext): void {
   const slider = element<HTMLInputElement>("#steering");
   const sensitivity = element<HTMLInputElement>("#sensitivity");
   const sensitivityValue = element<HTMLOutputElement>("#sensitivity-value");
   let currentAngle: number | undefined;
   let centerAngle: number | undefined;
   let motionEnabled = false;
+
+  portrait.addEventListener("change", () => {
+    currentAngle = undefined;
+    centerAngle = undefined;
+  });
 
   sensitivity.addEventListener("input", () => {
     sensitivityValue.textContent = `${sensitivity.value}%`;
@@ -230,6 +314,7 @@ function bindMotion({ state, render, transmit }: ControllerContext): void {
     if (
       !motionEnabled ||
       document.hidden ||
+      portrait.matches ||
       state.mode !== "wheel" ||
       event.beta === null ||
       event.gamma === null
