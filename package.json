@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "build:tokens": "node --import tsx src/ui-kit/scripts/build-tokens.ts",
-    "build": "tsc --noEmit && vite build",
+    "build:extension": "node --import tsx scripts/build-extension.ts",
+    "build": "tsc --noEmit && tsc --project cloudflare/tsconfig.json && vite build",
     "start": "node server/index.ts",
+    "test:cloudflare": "npm run build && node --test integration/cloudflare-relay.test.ts",
     "test": "node --test tests/*.test.ts"
   },
   "dependencies": {
@@ -16,13 +18,17 @@
     "ws": "8.22.0"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261117.1",
+    "@types/chrome": "^0.3.7",
     "@types/node": "^24.0.0",
     "@types/qrcode": "^1.5.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@types/ws": "^8.18.1",
+    "esbuild": "^0.28.2",
     "tsx": "^4.23.15",
     "typescript": "6.0.2",
-    "vite": "8.3.5"
+    "vite": "8.3.5",
+    "wrangler": "^4.163.0"
   }
 }
