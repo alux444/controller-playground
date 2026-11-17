@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Phone Wheel for WMMTD",
+  "description": "Use a Controller Playground phone as an experimental wheel for WMMTD.",
+  "version": "0.1.0",
+  "minimum_chrome_version": "116",
+  "permissions": ["activeTab"],
+  "host_permissions": ["https://wmmtd.xyz/*"],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_title": "Phone Wheel", "default_popup": "popup.html" },
+  "content_scripts": [
+    { "matches": ["https://wmmtd.xyz/*"], "js": ["gamepad.js"], "run_at": "document_start", "world": "MAIN" },
+    { "matches": ["https://wmmtd.xyz/*"], "js": ["bridge.js"], "run_at": "document_start" }
+  ]
+}
